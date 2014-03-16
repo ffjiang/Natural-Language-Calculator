@@ -18,7 +18,7 @@ public class NLCalc {
 		Interpreter interpret = new Interpreter();
 
 		LinkedList tokens = interpret.analyse(whole);
-		System.out.println(tokens.size());
+		System.out.println("Size of tokens:" + tokens.size());
 
 		for (Object o : tokens) {
 			if (o instanceof String) {
@@ -52,24 +52,45 @@ public class NLCalc {
 			}
 		}
 
-		// There are two types of arithmetic exprssion: unary and binary.
+		// Determine which operators are unary and which are binary
+		classify(oper);
+
+		for (int i : oper) {
+			System.out.println(i);
+		}
+
+		/* THINGS TO DO:
+			- Implement things like mod/modulus, divide/divided by
+			- Implement numbers and symbols like +-* /
+			- Implement CALCULATION
+			- Implement order of operations
+
+			- Implement more functions, like differentiation or integration
+
+	}
+
+	/* Classify each operator in the oper LinkedList (each 1 value)
+		as either a unary operator (1) or a binary operator (2) */
+	public static void classify(LinkedList<Integer> oper) {
+		// There are two types of arithmetic expression: unary and binary.
 		// From the order of the oper LinkedList, classify the operators
-		for (int i = 0; i < tokens.size; i++) {
-			int type; // 0 means invalid token
-					  // 1 means operand
-					  // 2 means operator
-			if (interpret.isOperand(tokens[i])) {
-				type = 1;
-			} else if (interpret.isOperator(tokens[i])) {
-				type = 2;
+		int prev = 1;   // Start start is analagous to previous token being unary operator
+		for (int i = 0; i < oper.size(); i++) { 		
+			if (oper.get(i) == 0) {
+				prev = 0;
+			} else if (oper.get(i) == 1) {
+				if (prev == 0) {		// If the previous token was an operand,
+					oper.set(i, 2);		// then this operator is binary.
+					prev = 2;
+				} else if (prev == 1) {	
+					/* If the previous token was a unary operator,
+						 then this opeartor is unary, so do nothing */
+				} else if (prev == 2) {   // If the previous token was a binary operator,
+					prev = 1; 			  // then this operator is unary.
+				}						
 			} else {
-				type = 0;
+				throw new RuntimeException("oper classifier not set to 0 or 1.");
 			}
-
-			// deal with type 0s
-
-
-
-		} */
+		}
 	}
 }
