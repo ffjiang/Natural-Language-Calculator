@@ -62,6 +62,11 @@ public class Interpreter {
 	/* Takes a single token and determines whether it
 		is an arithmetic operator */
 	public boolean isOperator(String token) {
+		if (token.length() == 1) {	// Accounting for symbols such as +,-,*,/,%
+			if (operators.containsValue(token.charAt(0))) {
+				return true;
+			}
+		}
 		if (operators.containsKey(token.toLowerCase())) {
 			return true;
 		} else {
@@ -92,40 +97,15 @@ public class Interpreter {
 		tokens.add(whole);
 
 		for (String key : operators.keySet()) {
-			for (int i = 0; i < tokens.size(); i++) {				
-				if (tokens.get(i) instanceof String) {	// If string is not a token, and therefore needs to be processed...
-					String nonToken = (String)tokens.get(i);
-					String[] delimited = nonToken.split(key, -1); // keep trailing empty strings
-					
-					tokens.remove(i);
-					for (int j = delimited.length - 1; j > 0; j--) { // Insert the delimited strings back into the 
-						tokens.add(i, delimited[j]);				// linked list, but with the delimiter in between each
-						tokens.add(i, new Token(key));
-					}
-					tokens.add(i, delimited[0]);
-
-					i += (delimited.length * 2) - 2; // Advance i to avoid parsing what was just inserted into the linked list.
-				}
-			}
+			parse(key, tokens);
 		}
 
-		// This loop is exactly the same as the one above, except it loops through operands instead of operators.
-		for (String key : operands.keySet()) {
-			for (int i = 0; i < tokens.size(); i++) {				
-				if (tokens.get(i) instanceof String) {	// If string is not a token, and therefore needs to be processed...
-					String nonToken = (String)tokens.get(i);
-					String[] delimited = nonToken.split(key, -1); // keep trailing empty strings
-					
-					tokens.remove(i);
-					for (int j = delimited.length - 1; j > 0; j--) { // Insert the delimited strings back into the 
-						tokens.add(i, delimited[j]);				// linked list, but with the delimiter in between each
-						tokens.add(i, new Token(key));
-					}
-					tokens.add(i, delimited[0]);
+		for (Character key : operators.values()) {
+			parse("" + key, tokens);
+		}
 
-					i += (delimited.length * 2) - 2; // Advance i to avoid parsing what was just inserted into the linked list.
-				}
-			}
+		for (String key : operands.keySet()) {
+			parse(key, tokens);
 		}
 
 	/*	for (Object remaining : tokens) {
@@ -137,6 +117,34 @@ public class Interpreter {
 		} */
 
 		return tokens;
+	}
+
+	/* The String 'key' is used as a delimiter to split the remaining strings (excluding Tokens)
+			in the LinkedList. Then the delimeter itself is inserted as a Token between each 
+			pair of strings, preserving the original order. */ 
+	private void parse(String key, LinkedList tokens) {
+		for (int i = 0; i < tokens.size(); i++) {				
+			if (tokens.get(i) instanceof String) {	// If string is not a token, and therefore needs to be processed...
+				String nonToken = (String)tokens.get(i);
+
+				String[] delimited;
+				// If the key happens to be a symbol such as '+', regex requires a double backslash before it
+				if (key.equals("+") || key.equals("-") || key.equals("*") || key.equals("/") || key.equals("%")) {
+					delimited = nonToken.split("\\" + key, -1);
+				} else {
+					delimited = nonToken.split(key, -1); // keep trailing empty strings
+				}
+
+				tokens.remove(i);
+				for (int j = delimited.length - 1; j > 0; j--) { // Insert the delimited strings back into the 
+					tokens.add(i, delimited[j]);				// linked list, but with the delimiter in between each
+					tokens.add(i, new Token(key));
+				}
+				tokens.add(i, delimited[0]);
+
+				i += (delimited.length * 2) - 2; // Advance i to avoid parsing what was just inserted into the linked list.
+			}
+		}
 	}
 
 	/* Takes a number of tokens representing a single

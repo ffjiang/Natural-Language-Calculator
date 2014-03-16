@@ -72,7 +72,7 @@ public class NLCalc {
 	/* Classify each operator in the oper LinkedList (each 1 value)
 		as either a unary operator (1) or a binary operator (2) */
 	public static void classify(LinkedList<Integer> oper) {
-		// There are two types of arithmetic expression: unary and binary.
+		// There are two types of arithmetic expression: unary (+,- only) and binary (+,- =,*,/,%).
 		// From the order of the oper LinkedList, classify the operators
 		int prev = 1;   // Start start is analagous to previous token being unary operator
 		for (int i = 0; i < oper.size(); i++) { 		
