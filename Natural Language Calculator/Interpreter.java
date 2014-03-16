@@ -2,6 +2,7 @@
  * can be interpreted as arithmetic expressions, and compute their values. */
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Interpreter {
 
@@ -10,7 +11,7 @@ public class Interpreter {
 
 	public Interpreter() {
 		operators = new HashMap<String, Character>();
-		operand = new HashMap<String, Integer>();
+		operands = new HashMap<String, Integer>();
 
 		operators.put("plus", 			'+');
 		operators.put("minus", 			'-');
@@ -78,14 +79,72 @@ public class Interpreter {
 		}
 	}
 
+	/* Splits up the String 'whole' into a linked list of tokens (wrapper class for Strings).
+		Will throw a runtime error if any leftover strings in the linked list are not empty strings. */ 
+	public LinkedList<Token> analyse(String whole) {
+		/* Each key in both the operand and operator hashmaps
+			will be used as a delimiter to split the remaining strings
+			in the LinkedList. Then the delimeter itself is inserted
+			as a Token between each pair of strings, preserving the 
+			original order. */ 
 
+		LinkedList tokens = new LinkedList();
+		tokens.add(whole);
+
+		for (String key : operators.keySet()) {
+			for (int i = 0; i < tokens.size(); i++) {				
+				if (tokens.get(i) instanceof String) {	// If string is not a token, and therefore needs to be processed...
+					String nonToken = (String)tokens.get(i);
+					String[] delimited = nonToken.split(key, -1); // keep trailing empty strings
+					
+					tokens.remove(i);
+					for (int j = delimited.length - 1; j > 0; j--) { // Insert the delimited strings back into the 
+						tokens.add(i, delimited[j]);				// linked list, but with the delimiter in between each
+						tokens.add(i, new Token(key));
+					}
+					tokens.add(i, delimited[0]);
+
+					i += (delimited.length * 2) - 2; // Advance i to avoid parsing what was just inserted into the linked list.
+				}
+			}
+		}
+
+		// This loop is exactly the same as the one above, except it loops through operands instead of operators.
+		for (String key : operands.keySet()) {
+			for (int i = 0; i < tokens.size(); i++) {				
+				if (tokens.get(i) instanceof String) {	// If string is not a token, and therefore needs to be processed...
+					String nonToken = (String)tokens.get(i);
+					String[] delimited = nonToken.split(key, -1); // keep trailing empty strings
+					
+					tokens.remove(i);
+					for (int j = delimited.length - 1; j > 0; j--) { // Insert the delimited strings back into the 
+						tokens.add(i, delimited[j]);				// linked list, but with the delimiter in between each
+						tokens.add(i, new Token(key));
+					}
+					tokens.add(i, delimited[0]);
+
+					i += (delimited.length * 2) - 2; // Advance i to avoid parsing what was just inserted into the linked list.
+				}
+			}
+		}
+
+	/*	for (Object remaining : tokens) {
+			if (remaining instanceof String) {
+				if (remaining != "") {
+					throw new RuntimeException();
+				}
+			}
+		} */
+
+		return tokens;
+	}
 
 	/* Takes a number of tokens representing a single
 		arithmetic operand, and returns its value */
 	public double evaluateOperand(String[] tokens) {
 		// Use regex to replace all instances of arguments with their number equivalents
 		
-
+		return 1.0;
 	}
 
 	/* Takes an arithmetic expression consisting of two operands, arg1 and arg2,
