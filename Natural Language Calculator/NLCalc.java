@@ -65,7 +65,7 @@ public class NLCalc {
 			- Implement CALCULATION
 			- Implement order of operations
 
-			- Implement more functions, like differentiation or integration
+			- Implement more functions, like differentiation or integration */
 
 	}
 
