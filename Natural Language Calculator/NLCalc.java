@@ -5,8 +5,6 @@
  * 
  */
 
-import java.util.LinkedList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class NLCalc {
@@ -18,8 +16,11 @@ public class NLCalc {
 
 		String[] tokens = whole.split(" ");
 
-		for (String s : tokens) {
-			System.out.println(s);
-		}
+		Interpreter interpret = new Interpreter();
+
+		
 	}
 }
+
+
+(1 plus 2) (times 3 point) 4
