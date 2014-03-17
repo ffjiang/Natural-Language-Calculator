@@ -27,6 +27,7 @@ public class Interpreter {
 		operators.put("over", 			'/');
 		operators.put("modulus", 		'%');
 		operators.put("mod",			'%');
+		operators.put("point",			'.');
 
 		operands.put("one", 		1);
 		operands.put("two", 		2);
@@ -79,9 +80,19 @@ public class Interpreter {
 	public boolean isOperand(String token) {
 		if (operands.containsKey(token.toLowerCase())) {
 			return true;
-		} else {
-			return false;
 		}
+
+		int length = token.length();
+		if (length > 0) {
+			for (int i = 0; i < length; i++) {
+				char c = token.charAt(i);
+				if (c <= '/' || c >= ':') {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/* Splits up the String 'whole' into a linked list of tokens (wrapper class for Strings).
@@ -96,25 +107,51 @@ public class Interpreter {
 		LinkedList tokens = new LinkedList();
 		tokens.add(whole);
 
+		// Check for operators (word form)
 		for (String key : operators.keySet()) {
 			parse(key, tokens);
 		}
 
-		for (Character key : operators.values()) {
+		// Check for operators (symbol form)
+		for (char key : operators.values()) {
 			parse("" + key, tokens);
 		}
 
+		// Check for operands (word form)
 		for (String key : operands.keySet()) {
 			parse(key, tokens);
 		}
 
-	/*	for (Object remaining : tokens) {
-			if (remaining instanceof String) {
-				if (remaining != "") {
-					throw new RuntimeException();
+		// Check for operands (number form)
+		for (int i = 0; i < tokens.size(); i++) {
+			if (tokens.get(i) instanceof Token) {
+				continue;
+			} else if (tokens.get(i) instanceof String) {
+				String str = (String)tokens.get(i);
+				String[] numbers = str.split("[^0-9]", 0); // Extract numbers
+
+				if (numbers.length > 1) {
+					throw new RuntimeException("Input cannot be parsed as single numbers");
 				}
+
+				if (numbers[0].length() != 0) {
+					tokens.set(i, new Token(numbers[0]));
+				} else {
+					tokens.remove(i);
+					i--;
+				}
+
+			} else {
+				throw new RuntimeException("Not a string");
 			}
-		} */
+		}
+
+		// throw RuntimeException if there are any strings left in the 'tokens' LinkedList
+		for (Object remaining : tokens) {
+			if (remaining instanceof String) {
+					throw new RuntimeException("String remaining in 'tokens' LinkedList.");
+			}
+		}
 
 		return tokens;
 	}
@@ -129,8 +166,11 @@ public class Interpreter {
 
 				String[] delimited;
 				// If the key happens to be a symbol such as '+', regex requires a double backslash before it
-				if (key.equals("+") || key.equals("-") || key.equals("*") || key.equals("/") || key.equals("%")) {
+				if (key.equals("+") || key.equals("-") || key.equals("*") || 
+					key.equals("/") || key.equals("%") || key.equals("."))
+				{
 					delimited = nonToken.split("\\" + key, -1);
+
 				} else {
 					delimited = nonToken.split(key, -1); // keep trailing empty strings
 				}
@@ -166,6 +206,11 @@ public class Interpreter {
 			case '*': return arg1 * arg2;
 			case '/': return arg1 / arg2;
 			case '%': return arg1 % arg2;
+			case '.': int divisor = 1;	// This isn't quite going to work if there are zeroes in the decimal
+					  while (arg2 / divisor >= 1) {
+					  	divisor *= 10;
+					  }
+					  return arg1 + arg2/divisor;
 			default: System.out.println("This is not a valid operator");
 					  return 0;
 		}

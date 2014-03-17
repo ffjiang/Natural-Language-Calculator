@@ -17,7 +17,7 @@ public class NLCalc {
 
 		Interpreter interpret = new Interpreter();
 
-		LinkedList tokens = interpret.analyse(whole);
+		LinkedList tokens = interpret.analyse(whole.toLowerCase());
 		System.out.println("Size of tokens:" + tokens.size());
 
 		for (Object o : tokens) {
