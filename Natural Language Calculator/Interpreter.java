@@ -130,15 +130,20 @@ public class Interpreter {
 				String str = (String)tokens.get(i);
 				String[] numbers = str.split("[^0-9]", 0); // Extract numbers
 
-				if (numbers.length > 1) {
-					throw new RuntimeException("Input cannot be parsed as single numbers");
+				int count = 0; // Count of nonempty strings in numbers[]
+				for (String s : numbers) {
+					if (s.length() > 0) {
+						tokens.set(i, new Token(s));
+						count++;
+					}
 				}
-
-				if (numbers[0].length() != 0) {
-					tokens.set(i, new Token(numbers[0]));
-				} else {
+				if (count == 0) {		// If there are no digits in the substring, remove it.
+					System.out.println("Meaningless non-numeric characters removed from operand");
 					tokens.remove(i);
 					i--;
+				}
+				if (count > 1) {
+					throw new RuntimeException("Input cannot be parsed as single numbers");
 				}
 
 			} else {
@@ -189,9 +194,30 @@ public class Interpreter {
 
 	/* Takes a number of tokens representing a single
 		arithmetic operand, and returns its value */
-	public double evaluateOperand(String[] tokens) {
+	public double evaluateOperand(LinkedList<String> tokens) {
 		// Use regex to replace all instances of arguments with their number equivalents
-		
+		LinkedList<Double> values = new LinkedList<Double>();
+		int length = tokens.size();
+		for (int i = 0; i < length; i++) {
+			String s = tokens.get(i);
+			if (operands.containsKey(s)) {
+				values.add((double)operands.get(s));
+			} else {
+				try {
+					values.add(Double.parseDouble(s));
+				} catch (NumberFormatException e) {
+					System.out.println("invalid operand token");
+				}
+			}
+		}
+
+		for (double d : values) {
+			System.out.println("operand token: " + d);
+		}
+
+		// All operands are now being converted into doubles. They now must be evaluated as one operand.
+		// This will probably involve a DFA style thing for decision making 
+
 		return 1.0;
 	}
 

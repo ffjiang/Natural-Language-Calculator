@@ -59,10 +59,37 @@ public class NLCalc {
 			System.out.println(i);
 		}
 
+		// Evaluate each group of operands as a single operand
+		if (tokens.size() != oper.size()) {
+			throw new RuntimeException("tokens and oper not of same length.");
+		}
+		LinkedList<String> groupedOperands = new LinkedList<String>();
+		for (int i = 0; i < oper.size(); i++) {
+			if (oper.get(i) == 0) {
+				groupedOperands.add(((Token)tokens.get(i)).token);
+				tokens.remove(i);
+				oper.remove(i);
+				i--;
+			} else {	/* When there is an operator, the current operand ends,
+							so the previous group of operands is evaluated */
+				tokens.add(i, interpret.evaluateOperand(groupedOperands));
+				groupedOperands.clear();
+				oper.add(i, 0);
+				i++;	/* Skip the operator just looked at, to prevent infinite loop,
+							because that operator was pushed back by the call of add() */
+			}
+		}
+
+		// To acconut for operands at end of expression
+			if (groupedOperands.size() > 0) {
+				tokens.addLast(interpret.evaluateOperand(groupedOperands));
+				oper.add(0);
+			}
+
 		/* THINGS TO DO:
+			- Finish implementing evaluation of operands
+			- Implement CALCULATIOM
 			- Implement things like mod/modulus, divide/divided by
-			- Implement numbers and symbols like +-* /
-			- Implement CALCULATION
 			- Implement order of operations
 
 			- Implement more functions, like differentiation or integration */
