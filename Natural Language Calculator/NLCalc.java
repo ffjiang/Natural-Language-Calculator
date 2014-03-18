@@ -55,9 +55,10 @@ public class NLCalc {
 		// Determine which operators are unary and which are binary
 		classify(oper);
 
-		for (int i : oper) {
+		// Print out the values of oper
+	/*	for (int i : oper) {
 			System.out.println(i);
-		}
+		} */
 
 		// Evaluate each group of operands as a single operand
 		if (tokens.size() != oper.size()) {
@@ -71,12 +72,14 @@ public class NLCalc {
 				oper.remove(i);
 				i--;
 			} else {	/* When there is an operator, the current operand ends,
-							so the previous group of operands is evaluated */
-				tokens.add(i, interpret.evaluateOperand(groupedOperands));
-				groupedOperands.clear();
-				oper.add(i, 0);
-				i++;	/* Skip the operator just looked at, to prevent infinite loop,
-							because that operator was pushed back by the call of add() */
+							so the previous group of operands is evaluated (as long as it is nonempty) */
+				if (groupedOperands.size() > 0) {
+					tokens.add(i, interpret.evaluateOperand(groupedOperands));
+					groupedOperands.clear();
+					oper.add(i, 0);
+					i++;	/* Skip the operator just looked at, to prevent infinite loop,
+								because that operator was pushed back by the call of add() */
+				}
 			}
 		}
 
@@ -87,7 +90,37 @@ public class NLCalc {
 		}
 
 		for (Object o : tokens) {
-			System.out.println("instanceof" + o.getClass());
+			if (o instanceof Double) {
+				System.out.println("Operand: " + (Double)o);
+			} else {
+				System.out.println("Operator: " + ((Token)o).token);
+			}
+		}
+
+		/* Print out values of oper again to check that there are no
+			 two operands next to each other. */
+		for (int i : oper) {
+			System.out.println(i);
+		} 
+
+		// Calculation time!
+
+		int length = tokens.size()
+		String operator1 = "";
+		String operator2 = "";
+		double operand1;
+		double operand2;
+
+		for (int i = 0; i < length; i++) {
+			if (tokens.get(i) instanceof Token) {
+				if (operator1 == "") {
+					operator1 = tokens.get(i).token;
+				} else {
+					operator2 = tokens.get(i).token;
+				}
+			} else if (tokens.get(i) instanceof Double) {
+				operand = tokens.get(i);
+			}
 		}
 
 		/* THINGS TO DO:

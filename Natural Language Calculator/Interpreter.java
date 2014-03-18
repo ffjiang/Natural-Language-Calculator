@@ -115,6 +115,12 @@ public class Interpreter {
 		LinkedList tokens = new LinkedList();
 		tokens.add(whole);
 
+		// Check for operands (word form)
+		// This is done before operators because words like 'six' contain operators
+		for (String key : operands.keySet()) {
+			parse(key, tokens);
+		}
+
 		// Check for operators (word form)
 		for (String key : operators.keySet()) {
 			parse(key, tokens);
@@ -123,11 +129,6 @@ public class Interpreter {
 		// Check for operators (symbol form)
 		for (char key : operators.values()) {
 			parse("" + key, tokens);
-		}
-
-		// Check for operands (word form)
-		for (String key : operands.keySet()) {
-			parse(key, tokens);
 		}
 
 		// Check for operands (number form)
@@ -146,7 +147,7 @@ public class Interpreter {
 					}
 				}
 				if (count == 0) {		// If there are no digits in the substring, remove it.
-					System.out.println("Meaningless non-numeric characters removed from operand");
+					System.out.println("Non-numeric characters and empty strings removed from operand");
 					tokens.remove(i);
 					i--;
 				}
@@ -220,18 +221,15 @@ public class Interpreter {
 			}
 		}
 
-		for (double d : values) {
-			System.out.println("operand token: " + d);
-		}
 
 		// All operands are now being converted into doubles. They now must be evaluated as one operand.
+		// Because of the order in which this is impelmented all numerical inputs which correspond to one 
+		// the keys in the operands hashmap will be treated as words.
 
 		// Use simple DFA to determine how operand tokens are concatenated
 		DigitDFA dfa = new DigitDFA(values);
 		return dfa.evaluate();
 	}
-
-	private 
 
 	/* Takes an arithmetic expression consisting of two operands, arg1 and arg2,
 		and a String operator, and returns its value. */
@@ -244,11 +242,6 @@ public class Interpreter {
 			case '*': return arg1 * arg2;
 			case '/': return arg1 / arg2;
 			case '%': return arg1 % arg2;
-			case '.': int divisor = 1;	// This isn't quite going to work if there are zeroes in the decimal
-					  while (arg2 / divisor >= 1) {
-					  	divisor *= 10;
-					  }
-					  return arg1 + arg2/divisor;
 			default: System.out.println("This is not a valid operator");
 					  return 0;
 		}
