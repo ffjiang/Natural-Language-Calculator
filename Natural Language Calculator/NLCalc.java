@@ -7,6 +7,8 @@
 
 import java.util.Scanner;
 import java.util.LinkedList;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
 
 public class NLCalc {
 	public static void main(String[] args) {
@@ -99,13 +101,13 @@ public class NLCalc {
 
 		/* Print out values of oper again to check that there are no
 			 two operands next to each other. */
-		for (int i : oper) {
+	/*	for (int i : oper) {
 			System.out.println(i);
-		} 
+		}  */
 
 		// Calculation time!
 
-		int length = tokens.size()
+	/*	int length = tokens.size()
 		String operator1 = "";
 		String operator2 = "";
 		double operand1;
@@ -121,7 +123,36 @@ public class NLCalc {
 			} else if (tokens.get(i) instanceof Double) {
 				operand = tokens.get(i);
 			}
+		} */
+
+		// Cheap ScriptEngine Calculation
+
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("JavaScript");
+
+		String expression = "";
+		for (Object o : tokens) {
+			if (o instanceof Token) {
+				String operator;
+				if (interpret.operators.containsKey(((Token)o).token)) {
+					operator = "" + interpret.operators.get(((Token)o).token);
+				} else {
+					operator = ((Token)o).token;
+				}
+				expression += operator;
+			} else if (o instanceof Double) {
+				expression += o;
+			} else {
+				System.out.println("Error converting expression into String for ScriptEngine parsing");
+			}
 		}
+
+		try {
+			System.out.println("Result: " + engine.eval(expression));
+		} catch (Exception e) {
+			System.out.println("Error evaluating expression in ScriptException");
+		}
+
 
 		/* THINGS TO DO:
 			- Finish implementing evaluation of operands
