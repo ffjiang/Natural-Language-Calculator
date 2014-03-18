@@ -80,11 +80,15 @@ public class NLCalc {
 			}
 		}
 
-		// To acconut for operands at end of expression
-			if (groupedOperands.size() > 0) {
-				tokens.addLast(interpret.evaluateOperand(groupedOperands));
-				oper.add(0);
-			}
+		// To account for operands at end of expression
+		if (groupedOperands.size() > 0) {
+			tokens.addLast(interpret.evaluateOperand(groupedOperands));
+			oper.add(0);
+		}
+
+		for (Object o : tokens) {
+			System.out.println("instanceof" + o.getClass());
+		}
 
 		/* THINGS TO DO:
 			- Finish implementing evaluation of operands

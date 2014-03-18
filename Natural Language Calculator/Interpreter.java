@@ -14,6 +14,7 @@ public class Interpreter {
 		operands = new HashMap<String, Integer>();
 
 		operators.put("plus", 			'+');
+		operators.put("and",			'+');
 		operators.put("minus", 			'-');
 		operators.put("times", 			'*');
 		operators.put("multiply", 		'*');
@@ -27,8 +28,9 @@ public class Interpreter {
 		operators.put("over", 			'/');
 		operators.put("modulus", 		'%');
 		operators.put("mod",			'%');
-		operators.put("point",			'.');
+	//	operators.put("derivative of",  'd/dx');
 
+		operands.put("zero",		0);
 		operands.put("one", 		1);
 		operands.put("two", 		2);
 		operands.put("three", 		3);
@@ -57,7 +59,13 @@ public class Interpreter {
 		operands.put("eighty", 		80);
 		operands.put("ninety", 		90);
 		operands.put("hundred", 	100);
+		operands.put("thousand",	1000);
+		operands.put("million", 	1000000);
+		operands.put("billion",		1000000000);
 		operands.put("a", 			1);
+		// Points are handled explicitly in evaluateOperand()
+		operands.put("point",		-1); 
+		operands.put(".",			-1);
 	}
 
 	/* Takes a single token and determines whether it
@@ -86,7 +94,7 @@ public class Interpreter {
 		if (length > 0) {
 			for (int i = 0; i < length; i++) {
 				char c = token.charAt(i);
-				if (c <= '/' || c >= ':') {
+				if (c <= '/' || c >= ':') {  // Test to see if it is an ascii
 					return false;
 				}
 			}
@@ -207,6 +215,7 @@ public class Interpreter {
 					values.add(Double.parseDouble(s));
 				} catch (NumberFormatException e) {
 					System.out.println("invalid operand token");
+					System.exit(1);
 				}
 			}
 		}
@@ -216,10 +225,13 @@ public class Interpreter {
 		}
 
 		// All operands are now being converted into doubles. They now must be evaluated as one operand.
-		// This will probably involve a DFA style thing for decision making 
 
-		return 1.0;
+		// Use simple DFA to determine how operand tokens are concatenated
+		DigitDFA dfa = new DigitDFA(values);
+		return dfa.evaluate();
 	}
+
+	private 
 
 	/* Takes an arithmetic expression consisting of two operands, arg1 and arg2,
 		and a String operator, and returns its value. */
