@@ -132,37 +132,35 @@ public class Interpreter {
 
 		// Check for operands (number form)
 		for (int i = 0; i < tokens.size(); i++) {
-			if (tokens.get(i) instanceof Token) {
+			Token tok = tokens.get(i);
+			if (tok.isTokenized()) {
 				continue;
-			} else if (tokens.get(i) instanceof String) {
-				String str = (String)tokens.get(i);
+			} else {
+				String str = tok.getToken();
 				String[] numbers = str.split("[^0-9]", 0); // Extract numbers
 
 				int count = 0; // Count of nonempty strings in numbers[]
 				for (String s : numbers) {
 					if (s.length() > 0) {
-						tokens.set(i, new Token(s));
+						tokens.set(i, new Token(s, true)); // Replace old, unprocessed Token with a tokenized Token
 						count++;
 					}
 				}
-				if (count == 0) {		// If there are no digits in the substring, remove it.
+				if (count == 0) {		// If there are no digits in 'str', remove the corresponding Token entirely.
 					System.out.println("Non-numeric characters and empty strings removed from operand");
 					tokens.remove(i);
 					i--;
 				}
 				if (count > 1) {
-					throw new RuntimeException("Input cannot be parsed as single numbers");
+					throw new RuntimeException("Numerial input must be contiguous.");
 				}
-
-			} else {
-				throw new RuntimeException("Not a string");
 			}
 		}
 
 		// throw RuntimeException if there are any strings left in the 'tokens' LinkedList
-		for (Object remaining : tokens) {
-			if (remaining instanceof String) {
-					throw new RuntimeException("String remaining in 'tokens' LinkedList.");
+		for (Token t : tokens) {
+			if (!t.isTokenized()) {
+					throw new RuntimeException("Untokenized objects remaining in 'tokens' LinkedList.");
 			}
 		}
 

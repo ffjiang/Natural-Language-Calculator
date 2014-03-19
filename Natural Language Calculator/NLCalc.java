@@ -21,46 +21,29 @@ public class NLCalc {
 		Interpreter interpret = new Interpreter();
 
 		LinkedList tokens = interpret.analyse(whole.toLowerCase());
-		System.out.println("Size of tokens:" + tokens.size());
+		System.out.println("Number of tokens:" + tokens.size());
 
-		for (Object o : tokens) {
-			if (o instanceof String) {
-				System.out.println("String: " + (String)o);
-			} else if (o instanceof Token) {
-				System.out.println("Token: " + ((Token)o).token);
-			}
-		}
-
-		// Remove strings
-		for (int i = 0; i < tokens.size(); i++) {
-			if (tokens.get(i) instanceof String) {
-				tokens.remove(i);
-				i--;
-			}
+		for (Token t : tokens) {
+			System.out.println("Token: " + t.getToken());
 		}
 
 		// Determine if each token is an operand or an operator
 		// 0 represents operand, 1 represents operator
-		LinkedList<Integer> oper = new LinkedList<Integer>();
 
-		for (Object o : tokens) {
-			if (o instanceof Token) {
-				if (interpret.isOperand(((Token)o).token)) {
-					oper.addLast(0);
-				} else if (interpret.isOperator(((Token)o).token)) {
-					oper.addLast(1);
-				}
-			} else {
-				throw new RuntimeException("There are non-Token objects in the tokens LinkedList.");
+		for (Token t : tokens) {
+			if (interpret.isOperand(t.getToken())) {
+				t.setOperand();
+			} else if (interpret.isOperator(t.getToken())) {
+				t.setBinary();	// Just assume that they are binary for now
 			}
 		}
 
 		// Determine which operators are unary and which are binary
-		classify(oper);
+		classify(tokens);
 
-		// Print out the values of oper
-	/*	for (int i : oper) {
-			System.out.println(i);
+		// Print out operand/unary/binary
+	/*	for (Token t : tokens) {
+			System.out.println(t.getType());
 		} */
 
 		// Evaluate each group of operands as a single operand
@@ -221,7 +204,7 @@ public class NLCalc {
 
 	/* Classify each operator in the oper LinkedList (each 1 value)
 		as either a unary operator (1) or a binary operator (2) */
-	public static void classify(LinkedList<Integer> oper) {
+	public static void classify(LinkedList<Token> token) {
 		// There are two types of arithmetic expression: unary (+,- only) and binary (+,- =,*,/,%).
 		// From the order of the oper LinkedList, classify the operators
 		int prev = 1;   // Start start is analagous to previous token being unary operator

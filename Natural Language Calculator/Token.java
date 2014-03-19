@@ -1,9 +1,10 @@
 public class Token {
+	public enum TokenType {OPERAND, OPERATOR, UNARY, BINARY}
+
 	private String token;
 	private double value;
-	private boolean operator;
-	private boolean unaryOperator;
 	private boolean tokenized;
+	private TokenType type;
 
 	public Token(String token) {
 		this.token = token;
@@ -12,42 +13,51 @@ public class Token {
 	public Token(double value) {
 		this.value = value;
 		isTokenized = true;
+		type = TokenType.OPERAND;
 	}
 
 
 	// Accessor methods
 
-	public getToken() {
+	public String getToken() {
 		return token;
 	}
 
-	public setToken(String token, boolean tokenized) {
+	public void setToken(String token, boolean tokenized) {
 		this.token = token;
 		this.tokenized = tokenized;
+		if (tokenized) {
+			type = OPERATOR;
+		}
 	}
 
-	public getValue() {
+	public double getValue() {
 		return value;
 	}
 
-	public setValue(double value) {
+	public void setValue(double value) {
 		this.value = value;
 		tokenized = true;
 	}
 
-	public isOperator() {
-		return (tokenized && token == NULL);
-	}
-
-	public isTokenized() {
+	public boolean isTokenized() {
 		return tokenized;
 	}
 
-	public isUnaryOperator() {
-		return unaryOperator;
+	public TokenType getType() {
+		return type;
 	}
 
-	public setUnaryOperator() {
-		unaryOperator = true;
+	public void setUnary() {
+		type = TokenType.UNARY;
 	}
+
+	public void setBinary() {
+		type = TokenType.BINARY;
+	}
+
+	public void setOperand() {
+		type = TokenType.OPERAND;
+	}
+
 }
