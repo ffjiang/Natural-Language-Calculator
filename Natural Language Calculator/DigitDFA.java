@@ -164,9 +164,9 @@ public class DigitDFA {
 			operandValue += d;
 			digit = DIGIT.TENS;
 		} else if (greaterThanTens.contains(d)) {
-			/* For numbers like "thirty two thousand", the last units and tens 
-				digits need to be taken and multiplied separately by d, before being added */
-			double temp = ((int)operandValue) % 100;	// Get last (units) digit of operandValue
+			/* For numbers like "four million three hundred and fifty two thousand", the last 3 digits
+				 need to be taken and multiplied separately by d, before being added */
+			double temp = ((int)operandValue) % 1000;	// Get last (units) digit of operandValue
 			operandValue = operandValue - temp + (temp * d);
 			digit = DIGIT.GREATER_THAN_TENS;
 		} else {
@@ -198,7 +198,10 @@ public class DigitDFA {
 			operandValue += d;
 			digit = DIGIT.TENS;
 		} else if (greaterThanTens.contains(d)) {
-			operandValue *= d;
+			/* For numbers like "four million twelve thousand", the last units and tens 
+				digits need to be taken and multiplied separately by d, before being added */
+			double temp = ((int)operandValue) % 1000;	// Get last (units) digit of operandValue
+			operandValue = operandValue - temp + (temp * d);
 			digit = DIGIT.GREATER_THAN_TENS;
 		} else {
 			operandValue = Double.parseDouble("" + operandValue + (int)d);
@@ -227,7 +230,10 @@ public class DigitDFA {
 			operandValue *= 100;
 			operandValue += d;
 		} else if (greaterThanTens.contains(d)) {
-			operandValue *= d;
+			/* For numbers like "four million twelve thousand", the last units and tens 
+				digits need to be taken and multiplied separately by d, before being added */
+			double temp = ((int)operandValue) % 1000;	// Get last (units) digit of operandValue
+			operandValue = operandValue - temp + (temp * d);
 			digit = DIGIT.GREATER_THAN_TENS;
 		} else {
 			operandValue = Double.parseDouble("" + (int)operandValue + (int)d);
@@ -235,6 +241,10 @@ public class DigitDFA {
 		}
 		return digit;
 	}
+/*
+	private DIGIT handleHUNDRED(double d) {
+		DIGIT digit = DIGIT.HUNDREDS {}
+	} */
 
 	/* If DFA is currently in GREATER_THAN_TENS state, zeroes will be produce an error,
 		units will be added... */

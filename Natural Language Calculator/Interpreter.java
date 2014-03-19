@@ -111,8 +111,8 @@ public class Interpreter {
 			as a Token between each pair of strings, preserving the 
 			original order. */ 
 
-		LinkedList tokens = new LinkedList();
-		tokens.add(whole);
+		LinkedList<Token> tokens = new LinkedList<Token>();
+		tokens.add(new Token(whole), false);
 
 		// Check for operands (word form)
 		// This is done before operators because words like 'six' contain operators
@@ -172,28 +172,28 @@ public class Interpreter {
 	/* The String 'key' is used as a delimiter to split the remaining strings (excluding Tokens)
 			in the LinkedList. Then the delimeter itself is inserted as a Token between each 
 			pair of strings, preserving the original order. */ 
-	private void parse(String key, LinkedList tokens) {
-		for (int i = 0; i < tokens.size(); i++) {				
-			if (tokens.get(i) instanceof String) {	// If string is not a token, and therefore needs to be processed...
-				String nonToken = (String)tokens.get(i);
-
+	private void parse(String key, LinkedList<Token> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {	
+			String str = tokens.get(i);			
+			if (!str.isTokenized()) {	// If string is not a token, and therefore needs to be processed...
 				String[] delimited;
+
 				// If the key happens to be a symbol such as '+', regex requires a double backslash before it
 				if (key.equals("+") || key.equals("-") || key.equals("*") || 
 					key.equals("/") || key.equals("%") || key.equals("."))
 				{
-					delimited = nonToken.split("\\" + key, -1);
+					delimited = str.split("\\" + key, -1);
 
 				} else {
-					delimited = nonToken.split(key, -1); // keep trailing empty strings
+					delimited = str.split(key, -1); // keep trailing empty strings
 				}
 
 				tokens.remove(i);
 				for (int j = delimited.length - 1; j > 0; j--) { // Insert the delimited strings back into the 
-					tokens.add(i, delimited[j]);				// linked list, but with the delimiter in between each
-					tokens.add(i, new Token(key));
+					tokens.add(i, delimited[j], false);				// linked list, but with the delimiter in between each
+					tokens.add(i, new Token(key, true));
 				}
-				tokens.add(i, delimited[0]);
+				tokens.add(i, delimited[0], false);
 
 				i += (delimited.length * 2) - 2; // Advance i to avoid parsing what was just inserted into the linked list.
 			}
@@ -253,3 +253,5 @@ public class Interpreter {
 		}
 	}
 }
+
+a b c d + - * e f + * g +

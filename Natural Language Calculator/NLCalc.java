@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.LinkedList;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
+import java.util.Stack;
 
 public class NLCalc {
 	public static void main(String[] args) {
@@ -101,10 +102,64 @@ public class NLCalc {
 
 		/* Print out values of oper again to check that there are no
 			 two operands next to each other. */
-	/*	for (int i : oper) {
+		for (int i : oper) {
 			System.out.println(i);
-		}  */
+		}
 
+		// Account for the effect of unary operators on operands
+		int multiplier = 1; // 1 or -1 at all times
+		for (int i = 0; i < tokens.size(); i++) {
+			if (oper.get(i) == 1) {
+				multiplier *= -1;
+				oper.remove(i);
+				tokens.remove(i);
+				i--;
+			} else if (oper.get(i) == 0 && multiplier == -1) {
+				tokens.set(i, (Double)tokens.get(i) * multiplier);
+				multiplier = 1;
+			} else if (oper.get(i) == 2 && multiplier != 1) { // Unary operators cannot come bfore binary operators
+				System.out.println("Unary operators cannot come before binary operators");
+			}
+		}
+
+
+		// Convert into postfix notation using Djikstra's Shunting Yard Algorithm
+
+		Stack operatorStack = new Stack();
+		LinkedList outputQueue = new LinkedList();
+
+
+		for (Object o : tokens) {
+			if (o instanceof Token) {
+				String operator;
+				if (interpret.operators.containsKey(((Token)o).token)) {
+					operator = "" + interpret.operators.get(((Token)o).token);
+				} else {
+					operator = ((Token)o).token;
+				}
+
+				/* Pop operators off stack until operator at top is
+					of lower precedence than the current operator */
+				if (operator.equals("+") || operator.equals("-")) {
+					while (operatorStack.size() > 0) {
+						outputQueue.addLast(operatorStack.pop());
+					}
+					operatorStack.push(operator);
+				} else if (operator.equals("*") || operator.equals("/") || operator.equals("%")) {
+					while (!operatorStack.peek().equals("+") && !operatorStack.peek().equals("-")) {
+						outputQueue.addLast(operatorStack.pop());
+					}
+					operatorStack.push(operator);
+				}
+
+			} else if (o instanceof Double) { // Values are simply moved to outputQueue
+				outputQueue.add(o);
+			}
+		}
+
+
+
+/* ------------------------------------- */
 		// Calculation time!
 
 	/*	int length = tokens.size()
@@ -141,18 +196,18 @@ public class NLCalc {
 				}
 				expression += operator;
 			} else if (o instanceof Double) {
-				expression += o;
+				expression += "(" + o + ")"; // The bracks account for negative numbers
 			} else {
 				System.out.println("Error converting expression into String for ScriptEngine parsing");
 			}
 		}
 
+		System.out.println("Expression: " + expression);
 		try {
 			System.out.println("Result: " + engine.eval(expression));
 		} catch (Exception e) {
 			System.out.println("Error evaluating expression in ScriptException");
 		}
-
 
 		/* THINGS TO DO:
 			- Finish implementing evaluation of operands
