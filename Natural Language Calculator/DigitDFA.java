@@ -129,6 +129,7 @@ public class DigitDFA {
 		DIGIT digit = DIGIT.ZERO;
 
 		if (units.contains(d)) {
+			operandValue *= 10;
 			operandValue += d;
 			digit = DIGIT.UNITS;
 		} else {
