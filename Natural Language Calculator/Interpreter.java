@@ -213,6 +213,13 @@ public class Interpreter {
 				values.add((double)operands.get(s));
 			} else {
 				try {
+					for (int j = 0; j < s.length(); j++) {	// Account for zeroes at beginning of strings
+						if (s.charAt(j) == '0') {
+							values.add(0.0);
+						} else {
+							break;
+						}
+					}
 					values.add(Double.parseDouble(s));
 				} catch (NumberFormatException e) {
 					System.out.println("invalid operand token");
