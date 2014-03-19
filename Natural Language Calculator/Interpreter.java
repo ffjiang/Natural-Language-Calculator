@@ -62,7 +62,6 @@ public class Interpreter {
 		operands.put("thousand",	1000);
 		operands.put("million", 	1000000);
 		operands.put("billion",		1000000000);
-		operands.put("a", 			1);
 		// Points are handled explicitly in evaluateOperand()
 		operands.put("point",		-1); 
 		operands.put(".",			-1);

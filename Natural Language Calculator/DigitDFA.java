@@ -3,6 +3,7 @@ import java.util.HashSet;
 
 public class DigitDFA {
 	double operandValue;
+	int digitCount;
 	HashSet<Double> units;
 	HashSet<Double> teens;
 	HashSet<Double> tens;
@@ -153,7 +154,6 @@ public class DigitDFA {
 		} else if (units.contains(d)) {
 			operandValue *= 10;
 			operandValue += d;
-			digit = DIGIT.UNITS;
 			return digit;
 		} else if (teens.contains(d)) {
 			operandValue *= 100;
@@ -164,7 +164,10 @@ public class DigitDFA {
 			operandValue += d;
 			digit = DIGIT.TENS;
 		} else if (greaterThanTens.contains(d)) {
-			operandValue *= d;
+			/* For numbers like "thirty two thousand", the last units and tens 
+				digits need to be taken and multiplied separately by d, before being added */
+			double temp = ((int)operandValue) % 100;	// Get last (units) digit of operandValue
+			operandValue = operandValue - temp + (temp * d);
 			digit = DIGIT.GREATER_THAN_TENS;
 		} else {
 			operandValue = Double.parseDouble("" + operandValue + d);
@@ -190,7 +193,6 @@ public class DigitDFA {
 		} else if (teens.contains(d)) {
 			operandValue *= 100;
 			operandValue += d;
-			digit = DIGIT.TEENS;
 		} else if (tens.contains(d)) {
 			operandValue *= 100;
 			operandValue += d;
@@ -224,7 +226,6 @@ public class DigitDFA {
 		} else if (tens.contains(d)) {
 			operandValue *= 100;
 			operandValue += d;
-			digit = DIGIT.TENS;
 		} else if (greaterThanTens.contains(d)) {
 			operandValue *= d;
 			digit = DIGIT.GREATER_THAN_TENS;
@@ -238,7 +239,28 @@ public class DigitDFA {
 	/* If DFA is currently in GREATER_THAN_TENS state, zeroes will be produce an error,
 		units will be added... */
 	private DIGIT handleGREATER(double d) {
-		DIGIT digit = DIGIT.ZERO;
+		DIGIT digit = DIGIT.GREATER_THAN_TENS;
+
+		if (d == 0.0) {
+			System.out.println("NLCalc does not understand the input: Error 4");
+			System.out.println("Please try again.");
+			System.exit(1);
+		} else if (units.contains(d)) {
+			operandValue += d;
+			digit = DIGIT.UNITS;
+		} else if (teens.contains(d)) {
+			operandValue += d;
+			digit = DIGIT.TEENS;
+		} else if (tens.contains(d)) {
+			operandValue += d;
+			digit = DIGIT.TENS;
+		} else if (greaterThanTens.contains(d)) {
+			operandValue *= d;
+		} else {
+			operandValue +=d;	// Treat other numbers as a sequence of units
+			digit = DIGIT.UNITS;
+		}
+
 		return digit;
 	}
 }
