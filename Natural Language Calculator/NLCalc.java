@@ -20,7 +20,7 @@ public class NLCalc {
 
 		Interpreter interpret = new Interpreter();
 
-		LinkedList tokens = interpret.analyse(whole.toLowerCase());
+		LinkedList<Token> tokens = interpret.analyse(whole.toLowerCase());
 		System.out.println("Number of tokens:" + tokens.size());
 
 		for (Token t : tokens) {
@@ -34,7 +34,7 @@ public class NLCalc {
 			if (interpret.isOperand(t.getToken())) {
 				t.setOperand();
 			} else if (interpret.isOperator(t.getToken())) {
-				t.setBinary();	// Just assume that they are binary for now
+				/* Do nothing - Interpreter.analyse() should have set all operator tokens to TokenType.OPERATOR */
 			}
 		}
 
@@ -47,22 +47,22 @@ public class NLCalc {
 		} */
 
 		// Evaluate each group of operands as a single operand
-		if (tokens.size() != oper.size()) {
-			throw new RuntimeException("tokens and oper not of same length.");
-		}
 		LinkedList<String> groupedOperands = new LinkedList<String>();
-		for (int i = 0; i < oper.size(); i++) {
-			if (oper.get(i) == 0) {
-				groupedOperands.add(((Token)tokens.get(i)).token);
+		for (int i = 0; i < tokens.size(); i++) {
+			Token tok = tokens.get(i);
+			if (tok.getType() == Token.TokenType.OPERAND) {
+				groupedOperands.add(tok.getToken());
 				tokens.remove(i);
-				oper.remove(i);
 				i--;
 			} else {	/* When there is an operator, the current operand ends,
 							so the previous group of operands is evaluated (as long as it is nonempty) */
 				if (groupedOperands.size() > 0) {
-					tokens.add(i, interpret.evaluateOperand(groupedOperands));
+					// Add a Token holding a double value to replace the group of operands removed
+					Token tok2 = new Token(interpret.evaluateOperand(groupedOperands));
+					tok2.setOperand();
+					tokens.add(i, tok2);
+
 					groupedOperands.clear();
-					oper.add(i, 0);
 					i++;	/* Skip the operator just looked at, to prevent infinite loop,
 								because that operator was pushed back by the call of add() */
 				}
@@ -71,132 +71,81 @@ public class NLCalc {
 
 		// To account for operands at end of expression
 		if (groupedOperands.size() > 0) {
-			tokens.addLast(interpret.evaluateOperand(groupedOperands));
-			oper.add(0);
+			Token tok2 = new Token(interpret.evaluateOperand(groupedOperands));
+			tok2.setOperand();
+			tokens.addLast(tok2);
 		}
 
-		for (Object o : tokens) {
-			if (o instanceof Double) {
-				System.out.println("Operand: " + (Double)o);
+		// Display the operands and operators to ensure they are correct
+		for (Token tok : tokens) {
+			if (tok.isOperand()) {
+				System.out.println("Operand: " + tok.getValue());
 			} else {
-				System.out.println("Operator: " + ((Token)o).token);
+				System.out.println("Operator: " + tok.getToken());
 			}
-		}
-
-		/* Print out values of oper again to check that there are no
-			 two operands next to each other. */
-		for (int i : oper) {
-			System.out.println(i);
 		}
 
 		// Account for the effect of unary operators on operands
 		int multiplier = 1; // 1 or -1 at all times
 		for (int i = 0; i < tokens.size(); i++) {
-			if (oper.get(i) == 1) {
+			Token tok = tokens.get(i);
+			if (tok.getType() == Token.TokenType.UNARY) {
 				multiplier *= -1;
-				oper.remove(i);
 				tokens.remove(i);
 				i--;
-			} else if (oper.get(i) == 0 && multiplier == -1) {
-				tokens.set(i, (Double)tokens.get(i) * multiplier);
+			} else if (tok.isOperand() && multiplier == -1) {
+				tok.setValue(tok.getValue() * multiplier);
 				multiplier = 1;
-			} else if (oper.get(i) == 2 && multiplier != 1) { // Unary operators cannot come bfore binary operators
+			} else if (tok.getType() == Token.TokenType.BINARY && multiplier != 1) { // Unary operators cannot come bfore binary operators
 				System.out.println("Unary operators cannot come before binary operators");
 			}
 		}
 
 
-		// Convert into postfix notation using Djikstra's Shunting Yard Algorithm
-
-		Stack operatorStack = new Stack();
-		LinkedList outputQueue = new LinkedList();
-
-
-		for (Object o : tokens) {
-			if (o instanceof Token) {
-				String operator;
-				if (interpret.operators.containsKey(((Token)o).token)) {
-					operator = "" + interpret.operators.get(((Token)o).token);
-				} else {
-					operator = ((Token)o).token;
-				}
-
-				/* Pop operators off stack until operator at top is
-					of lower precedence than the current operator */
-				if (operator.equals("+") || operator.equals("-")) {
-					while (operatorStack.size() > 0) {
-						outputQueue.addLast(operatorStack.pop());
-					}
-					operatorStack.push(operator);
-				} else if (operator.equals("*") || operator.equals("/") || operator.equals("%")) {
-					while (!operatorStack.peek().equals("+") && !operatorStack.peek().equals("-")) {
-						outputQueue.addLast(operatorStack.pop());
-					}
-					operatorStack.push(operator);
-				}
-
-			} else if (o instanceof Double) { // Values are simply moved to outputQueue
-				outputQueue.add(o);
-			}
-		}
-
-
-
-/* ------------------------------------- */
-		// Calculation time!
-
-	/*	int length = tokens.size()
-		String operator1 = "";
-		String operator2 = "";
-		double operand1;
-		double operand2;
-
-		for (int i = 0; i < length; i++) {
-			if (tokens.get(i) instanceof Token) {
-				if (operator1 == "") {
-					operator1 = tokens.get(i).token;
-				} else {
-					operator2 = tokens.get(i).token;
-				}
-			} else if (tokens.get(i) instanceof Double) {
-				operand = tokens.get(i);
-			}
-		} */
-
-		// Cheap ScriptEngine Calculation
-
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine engine = mgr.getEngineByName("JavaScript");
-
+		// Print out expression.
 		String expression = "";
-		for (Object o : tokens) {
-			if (o instanceof Token) {
+		for (Token tok : tokens) {
+			if (tok.isOperator()) {
 				String operator;
-				if (interpret.operators.containsKey(((Token)o).token)) {
-					operator = "" + interpret.operators.get(((Token)o).token);
+				if (interpret.operators.containsKey(tok.getToken())) {
+					operator = "" + interpret.operators.get(tok.getToken());
 				} else {
-					operator = ((Token)o).token;
+					operator = tok.getToken();
 				}
 				expression += operator;
-			} else if (o instanceof Double) {
-				expression += "(" + o + ")"; // The bracks account for negative numbers
+			} else if (tok.isOperand()) {
+				expression += "(" + tok.getValue() + ")"; // The bracks account for negative numbers
 			} else {
-				System.out.println("Error converting expression into String for ScriptEngine parsing");
+				System.out.println("Error converting expression into String");
 			}
 		}
 
 		System.out.println("Expression: " + expression);
-		try {
-			System.out.println("Result: " + engine.eval(expression));
-		} catch (Exception e) {
-			System.out.println("Error evaluating expression in ScriptException");
-		}
+
+/* ------------------------------------- */
+		// Calculation time!
+
+		// Convert expression from infix to postfix
+		LinkedList<String> postfixExpr = NLCompute.postfix(tokens);
+
+		// Evaluate the postfix expression
+		double result = NLCompute.evalPostfix(postfixExpr);
+
+
+		System.out.println("Result: " + result);
+
+
+
+		// Cheap ScriptEngine Calculation
+		/*
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("JavaScript");
+		System.out.println("Result: " + engine.eval(expression));
+		*/
+
 
 		/* THINGS TO DO:
 			- Finish implementing evaluation of operands
-			- Implement CALCULATIOM
-			- Implement things like mod/modulus, divide/divided by
-			- Implement order of operations
 
 			- Implement more functions, like differentiation or integration */
 
@@ -204,25 +153,27 @@ public class NLCalc {
 
 	/* Classify each operator in the oper LinkedList (each 1 value)
 		as either a unary operator (1) or a binary operator (2) */
-	public static void classify(LinkedList<Token> token) {
+	public static void classify(LinkedList<Token> tokens) {
 		// There are two types of arithmetic expression: unary (+,- only) and binary (+,- =,*,/,%).
 		// From the order of the oper LinkedList, classify the operators
-		int prev = 1;   // Start start is analagous to previous token being unary operator
-		for (int i = 0; i < oper.size(); i++) { 		
-			if (oper.get(i) == 0) {
-				prev = 0;
-			} else if (oper.get(i) == 1) {
-				if (prev == 0) {		// If the previous token was an operand,
-					oper.set(i, 2);		// then this operator is binary.
-					prev = 2;
-				} else if (prev == 1) {	
-					/* If the previous token was a unary operator,
-						 then this opeartor is unary, so do nothing */
-				} else if (prev == 2) {   // If the previous token was a binary operator,
-					prev = 1; 			  // then this operator is unary.
+		Token.TokenType prev = Token.TokenType.UNARY;   // Start start is analagous to previous token being unary operator
+		int length = tokens.size();
+		for (int i = 0; i < length; i++) {
+			Token tok = tokens.get(i);
+			if (tok.isOperand()) {
+				prev = Token.TokenType.OPERAND;
+			} else if (tok.isOperator()) {
+				if (prev == Token.TokenType.OPERAND) {		// If the previous token was an operand,
+					tok.setBinary();		// then this operator is binary.
+					prev = Token.TokenType.BINARY;
+				} else if (prev == Token.TokenType.UNARY) {	// If the previous token was a unary operator,
+					tok.setUnary();						// then this operator is unary
+				} else if (prev == Token.TokenType.BINARY) {   	 // If the previous token was a binary operator,
+					tok.setUnary(); 			  			 // then this operator is unary.
+					prev = Token.TokenType.UNARY;
 				}						
 			} else {
-				throw new RuntimeException("oper classifier not set to 0 or 1.");
+				throw new RuntimeException("Token is neither operator nor operand.");
 			}
 		}
 	}

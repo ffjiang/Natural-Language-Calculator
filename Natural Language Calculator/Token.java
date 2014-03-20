@@ -6,13 +6,17 @@ public class Token {
 	private boolean tokenized;
 	private TokenType type;
 
-	public Token(String token) {
+	public Token(String token, boolean tokenized) {
 		this.token = token;
+		this.tokenized = tokenized;
+		if (tokenized) {
+			type = TokenType.OPERATOR;
+		}
 	}
 
 	public Token(double value) {
 		this.value = value;
-		isTokenized = true;
+		tokenized = true;
 		type = TokenType.OPERAND;
 	}
 
@@ -23,11 +27,12 @@ public class Token {
 		return token;
 	}
 
+	// Doesn't ever seem to be used
 	public void setToken(String token, boolean tokenized) {
 		this.token = token;
 		this.tokenized = tokenized;
 		if (tokenized) {
-			type = OPERATOR;
+			type = TokenType.OPERATOR;
 		}
 	}
 
@@ -42,6 +47,14 @@ public class Token {
 
 	public boolean isTokenized() {
 		return tokenized;
+	}
+
+	public boolean isOperand() {
+		return (type == TokenType.OPERAND);
+	}
+
+	public boolean isOperator() {
+		return (type == TokenType.OPERATOR || type == TokenType.UNARY || type == TokenType.BINARY);
 	}
 
 	public TokenType getType() {
