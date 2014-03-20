@@ -57,6 +57,11 @@ public class NLCompute {
 		return outputQueue;
 	}
 
+	/*--------------------------------------------------------------------------------------------------------*/
+
+
+	// Evalues a postfix expression in the form of a LinkedList of Strings. Returns result as double.
+	
 	public static double evalPostfix(LinkedList<String> expression) {
 		Stack<Double> operandStack = new Stack<Double>();
 

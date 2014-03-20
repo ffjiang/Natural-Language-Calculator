@@ -122,7 +122,7 @@ public class NLCalc {
 
 		System.out.println("Expression: " + expression);
 
-/* ------------------------------------- */
+	/* ------------------------------------- */
 		// Calculation time!
 
 		// Convert expression from infix to postfix
@@ -140,8 +140,14 @@ public class NLCalc {
 		/*
 		ScriptEngineManager mgr = new ScriptEngineManager();
 		ScriptEngine engine = mgr.getEngineByName("JavaScript");
-		System.out.println("Result: " + engine.eval(expression));
+
+		try {
+			System.out.println("Result: " + engine.eval(expression));
+		} catch (Exception e) {
+			System.out.println("Script failed");
+		}
 		*/
+		
 
 
 		/* THINGS TO DO:
@@ -150,6 +156,8 @@ public class NLCalc {
 			- Implement more functions, like differentiation or integration */
 
 	}
+
+	/*--------------------------------------------------------------------------------------------------------*/
 
 	/* Classify each operator in the oper LinkedList (each 1 value)
 		as either a unary operator (1) or a binary operator (2) */

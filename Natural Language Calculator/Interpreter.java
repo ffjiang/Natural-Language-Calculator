@@ -14,7 +14,6 @@ public class Interpreter {
 		operands = new HashMap<String, Integer>();
 
 		operators.put("plus", 			'+');
-		operators.put("and",			'+');
 		operators.put("minus", 			'-');
 		operators.put("times", 			'*');
 		operators.put("multiply", 		'*');
@@ -29,6 +28,9 @@ public class Interpreter {
 		operators.put("modulus", 		'%');
 		operators.put("mod",			'%');
 		operators.put("to the power of",'^');
+		operators.put("sqrt",			'√');
+		operators.put("square root",	'√');
+		operators.put("factorial",		'!');
 	//	operators.put("derivative of",  'd/dx');
 
 		operands.put("zero",		0);
@@ -68,6 +70,8 @@ public class Interpreter {
 		operands.put(".",			-1);
 	}
 
+	/*--------------------------------------------------------------------------------------------------------*/
+
 	/* Takes a single token and determines whether it
 		is an arithmetic operator */
 	public boolean isOperator(String token) {
@@ -82,6 +86,8 @@ public class Interpreter {
 			return false;
 		}
 	}
+
+	/*--------------------------------------------------------------------------------------------------------*/
 
 	/* Takes a single token and determines whether it
 		is part of an arithmetic operand */
@@ -102,6 +108,8 @@ public class Interpreter {
 
 		return true;
 	}
+
+	/*--------------------------------------------------------------------------------------------------------*/
 
 	/* Splits up the String 'whole' into a linked list of tokens (wrapper class for Strings).
 		Will throw a runtime error if any leftover strings in the linked list are not empty strings. */ 
@@ -153,7 +161,7 @@ public class Interpreter {
 					i--;
 				}
 				if (count > 1) {
-					throw new RuntimeException("Numerial input must be contiguous.");
+					throw new RuntimeException("Numerical input must be contiguous.");
 				}
 			}
 		}
@@ -168,6 +176,8 @@ public class Interpreter {
 		return tokens;
 	}
 
+	/*--------------------------------------------------------------------------------------------------------*/
+
 	/* The String 'key' is used as a delimiter to split the remaining strings (excluding Tokens)
 			in the LinkedList. Then the delimeter itself is inserted as a Token between each 
 			pair of strings, preserving the original order. */ 
@@ -179,8 +189,8 @@ public class Interpreter {
 				String[] delimited;
 
 				// If the key happens to be a symbol such as '+', regex requires a double backslash before it
-				if (key.equals("+") || key.equals("-") || key.equals("*") || 
-					key.equals("/") || key.equals("%") || key.equals("."))
+
+				if (key.equals(".") || operators.containsValue(key.charAt(0)))
 				{
 					delimited = str.split("\\" + key, -1);
 
@@ -200,6 +210,8 @@ public class Interpreter {
 		}
 	}
 
+	/*--------------------------------------------------------------------------------------------------------*/
+
 	/* Takes a number of tokens representing a single
 		arithmetic operand, and returns its value */
 	public double evaluateOperand(LinkedList<String> tokens) {
@@ -214,7 +226,7 @@ public class Interpreter {
 				try {
 					for (int j = 0; j < s.length(); j++) {	// Account for zeroes at beginning of strings
 						if (s.charAt(j) == '0') {
-							values.add(0.0);
+							/* Ignore these zeroes */
 						} else {
 							break;
 						}
