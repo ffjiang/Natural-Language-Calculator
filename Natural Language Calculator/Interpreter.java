@@ -3,6 +3,8 @@
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Interpreter {
 
@@ -30,8 +32,6 @@ public class Interpreter {
 		operators.put("to the power of",'^');
 		operators.put("sqrt",			'√');
 		operators.put("square root",	'√');
-		operators.put("factorial",		'!');
-	//	operators.put("derivative of",  'd/dx');
 
 		operands.put("zero",		0);
 		operands.put("one", 		1);
@@ -124,12 +124,15 @@ public class Interpreter {
 		tokens.add(new Token(whole, false));
 
 		// Check for operands (word form)
-		// This is done before operators because words like 'six' contain operators
-		for (String key : operands.keySet()) {
-			lex(key, tokens);
+		// This is done before operators because words like 'six' contain operators ('x')
+		Object[] keys = operands.keySet().toArray();	// Go through keys in reverse order so 'sixty' 
+		Arrays.sort(keys, Collections.reverseOrder());	// is seen before 'six' and so forth'.
+		for (Object key : keys) {
+			lex((String)key, tokens);
 		}
 
 		// Check for operators (word form)
+
 		for (String key : operators.keySet()) {
 			lex(key, tokens);
 		}

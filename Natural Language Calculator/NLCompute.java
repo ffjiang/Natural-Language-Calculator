@@ -1,3 +1,5 @@
+/* Converts infix expressions into postfix and evaluates postfix expressions. */
+
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -61,7 +63,7 @@ public class NLCompute {
 
 
 	// Evalues a postfix expression in the form of a LinkedList of Strings. Returns result as double.
-	
+
 	public static double evalPostfix(LinkedList<String> expression) {
 		Stack<Double> operandStack = new Stack<Double>();
 

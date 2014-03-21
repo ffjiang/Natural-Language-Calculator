@@ -28,8 +28,6 @@ public class NLCalc {
 		}
 
 		// Determine if each token is an operand or an operator
-		// 0 represents operand, 1 represents operator
-
 		for (Token t : tokens) {
 			if (interpret.isOperand(t.getToken())) {
 				t.setOperand();
@@ -43,8 +41,22 @@ public class NLCalc {
 
 		// Print out operand/unary/binary
 	/*	for (Token t : tokens) {
-			System.out.println(t.getType());
+			System.out.print(t.getType() + ": ");
+			if (t.isOperator()) {
+				System.out.println(t.getToken());
+			} else {
+				System.out.println(t.getValue());
+			}
 		} */
+
+		// Convert operands into symbol form
+		for (Token tok : tokens) {
+			if (tok.isOperator()) {
+				if (interpret.operators.containsKey(tok.getToken())) {
+					tok.setToken("" + interpret.operators.get(tok.getToken()), true);
+				}
+			}
+		}
 
 		// Evaluate each group of operands as a single operand
 		LinkedList<String> groupedOperands = new LinkedList<String>();
@@ -68,13 +80,13 @@ public class NLCalc {
 				}
 			}
 		}
-
 		// To account for operands at end of expression
 		if (groupedOperands.size() > 0) {
 			Token tok2 = new Token(interpret.evaluateOperand(groupedOperands));
 			tok2.setOperand();
 			tokens.addLast(tok2);
 		}
+
 
 		// Display the operands and operators to ensure they are correct
 		for (Token tok : tokens) {
@@ -85,19 +97,30 @@ public class NLCalc {
 			}
 		}
 
-		// Account for the effect of unary operators on operands
-		int multiplier = 1; // 1 or -1 at all times
-		for (int i = 0; i < tokens.size(); i++) {
+		// Account for the effect of unary operators on operands. Does this by parsing expression from right to left
+		Token operand = null;
+		for (int i = tokens.size() - 1; i >= 0; i--) {
 			Token tok = tokens.get(i);
-			if (tok.getType() == Token.TokenType.UNARY) {
-				multiplier *= -1;
+			if (tok.getType() == Token.TokenType.UNARY && operand != null) {
+				if (tok.getToken().equals("-")) {
+					operand.setValue(operand.getValue() * -1);
+				} else if (tok.getToken().equals("+")) {
+					// Do nothing
+				} else if (tok.getToken().equals("√")) {
+					double value = operand.getValue();
+					if (value >= 0) {
+						operand.setValue(Math.sqrt(value));
+					} else {
+						System.out.println("Cannot square root a negative number.");
+						System.exit(-1);
+					}
+				}
 				tokens.remove(i);
-				i--;
-			} else if (tok.isOperand() && multiplier == -1) {
-				tok.setValue(tok.getValue() * multiplier);
-				multiplier = 1;
-			} else if (tok.getType() == Token.TokenType.BINARY && multiplier != 1) { // Unary operators cannot come bfore binary operators
-				System.out.println("Unary operators cannot come before binary operators");
+			} else if (tok.isOperand()) {
+				operand = tok;
+			} else if (tok.getType() == Token.TokenType.BINARY) {
+				// No unary operators can be on the left of a binary operator
+				operand = null;
 			}
 		}
 
@@ -106,21 +129,20 @@ public class NLCalc {
 		String expression = "";
 		for (Token tok : tokens) {
 			if (tok.isOperator()) {
-				String operator;
-				if (interpret.operators.containsKey(tok.getToken())) {
-					operator = "" + interpret.operators.get(tok.getToken());
-				} else {
-					operator = tok.getToken();
-				}
-				expression += operator;
+				expression += tok.getToken() + " ";
 			} else if (tok.isOperand()) {
-				expression += "(" + tok.getValue() + ")"; // The bracks account for negative numbers
+				double value = tok.getValue();
+				if (value < 0) {
+					expression += "(" + value + ") "; // The bracks account for negative numbers
+				} else {
+					expression += value + " ";
+				}
 			} else {
 				System.out.println("Error converting expression into String");
 			}
 		}
 
-		System.out.println("Expression: " + expression);
+		System.out.println("Expression interpreted as: " + expression);
 
 	/* ------------------------------------- */
 		// Calculation time!
@@ -151,7 +173,7 @@ public class NLCalc {
 
 
 		/* THINGS TO DO:
-			- Finish implementing evaluation of operands
+			- Finish implementing evaluation of operands - proper lexing
 
 			- Implement more functions, like differentiation or integration */
 

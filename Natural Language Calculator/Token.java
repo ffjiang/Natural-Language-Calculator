@@ -1,5 +1,5 @@
 public class Token {
-	public enum TokenType {OPERAND, OPERATOR, UNARY, BINARY}
+	public enum TokenType {OPERAND, INTEGRAL_EXPR, INTEGRAL_FROM, INTEGRAL_TO, OPERATOR, UNARY, BINARY}
 
 	private String token;
 	private double value;
@@ -27,13 +27,9 @@ public class Token {
 		return token;
 	}
 
-	// Doesn't ever seem to be used
 	public void setToken(String token, boolean tokenized) {
 		this.token = token;
 		this.tokenized = tokenized;
-		if (tokenized) {
-			type = TokenType.OPERATOR;
-		}
 	}
 
 	public double getValue() {
