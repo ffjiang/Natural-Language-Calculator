@@ -1,6 +1,6 @@
 /* Created by Frank Jiang
  * 
- * Poptip Coding Challenge Problem 5
+ * Poptip Coding Challenge Problem 5: Natural Language Calculator
  *
  * 
  */
@@ -18,7 +18,7 @@ public class NLCalc {
 		Scanner sc = new Scanner(System.in);
 		String whole = sc.nextLine();
 
-		Interpreter interpret = new Interpreter();
+		NLInterpreter interpret = new NLInterpreter();
 
 		LinkedList<Token> tokens = interpret.analyse(whole.toLowerCase());
 		System.out.println("Number of tokens:" + tokens.size());

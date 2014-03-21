@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class Interpreter {
+public class NLInterpreter {
 
 	HashMap<String, Character> operators;
 	HashMap<String, Integer> operands;
