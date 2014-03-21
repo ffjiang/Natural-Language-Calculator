@@ -10,9 +10,11 @@ public class NLInterpreter {
 
 	HashMap<String, Character> operators;
 	HashMap<String, Integer> operands;
+	HashMap<String, String> secondaryOperators;
 
-	public Interpreter() {
+	public NLInterpreter() {
 		operators = new HashMap<String, Character>();
+		secondaryOperators = new HashMap<String, String>();
 		operands = new HashMap<String, Integer>();
 
 		operators.put("plus", 			'+');
@@ -32,6 +34,9 @@ public class NLInterpreter {
 		operators.put("to the power of",'^');
 		operators.put("sqrt",			'√');
 		operators.put("square root",	'√');
+
+		secondaryOperators.put("squared", "to the power of two");
+		secondaryOperators.put("cubed", "to the power of three");
 
 		operands.put("zero",		0);
 		operands.put("one", 		1);
@@ -131,6 +136,14 @@ public class NLInterpreter {
 			lex((String)key, tokens);
 		}
 
+		// Check for secondary operators (word form)
+/*
+		for (String key: secondaryOperators.keySet()) {
+			for (Token tok : tokens) {
+				tok.setToken(tok.getToken().replace(key, secondaryOperators.get(key)), false);
+			}
+		} */
+
 		// Check for operators (word form)
 
 		for (String key : operators.keySet()) {
@@ -229,7 +242,7 @@ public class NLInterpreter {
 				try {
 					for (int j = 0; j < s.length(); j++) {	// Account for zeroes at beginning of strings
 						if (s.charAt(j) == '0') {
-							/* Ignore these zeroes */
+							values.add(0.0);
 						} else {
 							break;
 						}

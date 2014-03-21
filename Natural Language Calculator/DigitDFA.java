@@ -11,7 +11,7 @@ public class DigitDFA {
 	LinkedList<Double> values;
 	LinkedList<Double> greaterThanHundredsValues;
 
-	private enum DIGIT {START, ZERO, UNITS, TEENS, TENS, HUNDRED, GREATER_THAN_HUNDREDS}
+	private enum DIGIT {START, START_ZERO, ZERO, UNITS, TEENS, TENS, HUNDRED, GREATER_THAN_HUNDREDS}
 
 	public DigitDFA(LinkedList<Double> values) {
 		this.values = values;
@@ -63,11 +63,7 @@ public class DigitDFA {
 		DIGIT digit = DIGIT.START;
 		greaterThanHundredsValues = new LinkedList<Double>(); 
 		/* Used to store temporary values such as five million one hundred thousand
-			can be evaluated as (five million) + (one hundred thousand)
-
-		four hundred and five
-	 		 so an operand such as four hundred and five thousand
-	 		 can be evaluated as (four hundred and five) * (thousand) */
+			can be evaluated as (five million) + (one hundred thousand) */
 
 
 		int length = values.size();
@@ -78,6 +74,8 @@ public class DigitDFA {
 			switch (digit) {
 				case START: digit = handleSTART(current);
 						    break;
+				case START_ZERO: digit = handleSTARTZERO(current);
+								 break;
 				case ZERO: digit = handleZERO(current); 
 							 break;
 				case UNITS: digit = handleUNITS(current);
@@ -125,7 +123,7 @@ public class DigitDFA {
 		operandValue = d;
 
 		if (d == 0.0) {
-			digit = DIGIT.ZERO;
+			digit = DIGIT.START_ZERO;
 		} else if (units.contains(d)) {
 			digit = DIGIT.UNITS;
 		} else if (teens.contains(d)) {
@@ -148,10 +146,41 @@ public class DigitDFA {
 
 	/* Zeroes can only be followed by units, which are appended onto 
 		the current operandValue. */
+	private DIGIT handleSTARTZERO(double d) {
+		DIGIT digit = DIGIT.START_ZERO;
+
+		if (d == 0.0) {
+			digit = DIGIT.START_ZERO;
+		} else if (units.contains(d)) {
+			operandValue = d;
+			digit = DIGIT.UNITS;
+		} else if (teens.contains(d)) {
+			operandValue = d;
+			digit = DIGIT.TEENS;
+		} else if (tens.contains(d)) {
+			operandValue = d;
+			digit = DIGIT.TENS;
+		} else if (d == 100.0) {
+			operandValue = d;
+			digit = DIGIT.HUNDRED;
+		} else if (greaterThanHundreds.contains(d)) {
+			operandValue = d;
+			digit = DIGIT.GREATER_THAN_HUNDREDS;
+		} else {
+			operandValue = Double.parseDouble("" + operandValue + d);
+			digit = DIGIT.UNITS;	// All other numbers can be treated as a sequence of units and appended
+		}
+
+		return digit;
+	}
+
 	private DIGIT handleZERO(double d) {
 		DIGIT digit = DIGIT.ZERO;
 
-		if (units.contains(d)) {
+		if (d == 0.0) {
+			operandValue *= 10;
+			digit = DIGIT.ZERO;
+		} else if (units.contains(d)) {
 			operandValue *= 10;
 			operandValue += d;
 			digit = DIGIT.UNITS;
@@ -178,7 +207,6 @@ public class DigitDFA {
 		} else if (units.contains(d)) {
 			operandValue *= 10;
 			operandValue += d;
-			return digit;
 		} else if (teens.contains(d)) {
 			operandValue *= 100;
 			operandValue += d;

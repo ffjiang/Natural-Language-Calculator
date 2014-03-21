@@ -10,7 +10,7 @@ public class NLCompute {
 		 the expression in postfix notation. Uses Djikstra's Shunting Yard Algorithm */
 	public static LinkedList<String> postfix(LinkedList<Token> tokens) {
 		
-		Interpreter interpret = new Interpreter();
+		NLInterpreter interpret = new NLInterpreter();
 		Stack<String> operatorStack = new Stack<String>();
 		LinkedList<String> outputQueue = new LinkedList<String>(); // Should I use generics and force all my values to be strings
 
