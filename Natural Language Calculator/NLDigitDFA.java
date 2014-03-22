@@ -1,7 +1,7 @@
 import java.util.LinkedList;
 import java.util.HashSet;
 
-public class DigitDFA {
+public class NLDigitDFA {
 	double operandValue;
 	int digitCount;
 	HashSet<Double> units;
@@ -13,8 +13,9 @@ public class DigitDFA {
 
 	private enum DIGIT {START, START_ZERO, ZERO, UNITS, TEENS, TENS, HUNDRED, GREATER_THAN_HUNDREDS}
 
-	public DigitDFA(LinkedList<Double> values) {
+	public NLDigitDFA(LinkedList<Double> values) {
 		this.values = values;
+		System.out.println(values);
 
 		units = new HashSet<Double>();
 		teens = new HashSet<Double>();
@@ -70,7 +71,7 @@ public class DigitDFA {
 		int i;
 
 		// Handle tokens up to a decimal point
-		for (i = 0; i < length && (current = values.get(i)) >= 0; i++) {
+		for (i = 0; i < length && (current = values.get(i)) >= 0; i++) {	// Decimal points are represented as -1
 			switch (digit) {
 				case START: digit = handleSTART(current);
 						    break;
@@ -98,6 +99,7 @@ public class DigitDFA {
 		// Handle tokens after a decimal point
 		String decimals = ".";
 		for (i++; i < length; i++) {
+			System.out.println("HI:" + (int)((double)values.get(i)));
 			decimals += (int)((double)values.get(i)); // Unbox to double and then cast to int so 
 													  // that no extra decimal points are added to the string
 		}
@@ -167,7 +169,7 @@ public class DigitDFA {
 			operandValue = d;
 			digit = DIGIT.GREATER_THAN_HUNDREDS;
 		} else {
-			operandValue = Double.parseDouble("" + operandValue + d);
+			operandValue = Double.parseDouble("" + (operandValue + d));
 			digit = DIGIT.UNITS;	// All other numbers can be treated as a sequence of units and appended
 		}
 
@@ -185,7 +187,7 @@ public class DigitDFA {
 			operandValue += d;
 			digit = DIGIT.UNITS;
 		} else {
-			System.out.println("NLCalc does not understand the input: Error 2");
+			System.out.println("NLCalc does not understand the input: Only zeros and units accepted after a zero");
 			System.out.println("Please try again.");
 			System.exit(1);
 		}
@@ -232,18 +234,19 @@ public class DigitDFA {
 	/*--------------------------------------------------------------------------------------------------------*/
 
 	/* IF DFA is currently in TEENS state (between 10 and 19, inclusive), 
-		zeroes will be appended, units will produce an error, teens and tens 
+		zeroes, units teens and tens 
 		will be appended, and greater than tens will be multiplied. */
 	private DIGIT handleTEENS(double d) {
 		DIGIT digit = DIGIT.TEENS;
 
-		if (units.contains(d)) {
-			System.out.println("NLCalc does not understand the input: Error 3");
-			System.out.println("Please try again.");
-			System.exit(1);
-		} else if (d == 0.0) {
+
+		if (d == 0.0) {
 			operandValue *= 10;
 			digit = DIGIT.ZERO;
+		} else if (units.contains(d)) {
+			operandValue *= 10;
+			operandValue += d;
+			digit = DIGIT.UNITS;
 		} else if (teens.contains(d)) {
 			operandValue *= 100;
 			operandValue += d;
@@ -300,11 +303,14 @@ public class DigitDFA {
 
 	/*--------------------------------------------------------------------------------------------------------*/
 
+
+	/* If DFA is currently in the hundred state, zeroes will produce an error,
+		units, teens and tens are added, and hundreds and greaterThanHundreds will be multiplied. */
 	private DIGIT handleHUNDRED(double d) {
 		DIGIT digit = DIGIT.HUNDRED;
 
 		if (d == 0.0) {
-			System.out.println("NLCalc does not understand the input: Error 4");
+			System.out.println("NLCalc does not understand the input: Zero after hundred");
 			System.out.println("Please try again.");
 			System.exit(1);
 		} else if (units.contains(d)) {
@@ -329,6 +335,8 @@ public class DigitDFA {
 
 		return digit;
 	}
+
+/*--------------------------------------------------------------------------------------------------------*/
 
 	/* If DFA is currently in GREATER_THAN_TENS state, zeroes will be produce an error,
 		units will be added... */

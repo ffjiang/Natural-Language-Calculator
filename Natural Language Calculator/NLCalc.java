@@ -21,8 +21,9 @@ public class NLCalc {
 		NLInterpreter interpret = new NLInterpreter();
 
 		LinkedList<Token> tokens = interpret.analyse(whole.toLowerCase());
-		System.out.println("Number of tokens:" + tokens.size());
+	//	System.out.println("Number of tokens:" + tokens.size());
 
+		// Print out each token
 		for (Token t : tokens) {
 			System.out.println("Token: " + t.getToken());
 		}
@@ -39,14 +40,10 @@ public class NLCalc {
 		// Determine which operators are unary and which are binary
 		classify(tokens);
 
-		// Print out operand/unary/binary
+		// Print out whether each token is operand/unary/binary, and what their value is.
 	/*	for (Token t : tokens) {
 			System.out.print(t.getType() + ": ");
-			if (t.isOperator()) {
-				System.out.println(t.getToken());
-			} else {
-				System.out.println(t.getValue());
-			}
+			System.out.println(t.getToken());
 		} */
 
 		// Convert operands into symbol form
@@ -142,7 +139,7 @@ public class NLCalc {
 			}
 		}
 
-		System.out.println("Expression interpreted as: " + expression);
+		System.out.println("\nExpression interpreted as: " + expression);
 
 	/* ------------------------------------- */
 		// Calculation time!
@@ -154,11 +151,11 @@ public class NLCalc {
 		double result = NLCompute.evalPostfix(postfixExpr);
 
 
-		System.out.println("Result: " + result);
+		System.out.println("----------------\nResult: " + result + "\n----------------");
 
 
 
-		// Cheap ScriptEngine Calculation
+		// Alternatively, use ScriptEngine Calculation
 		/*
 		ScriptEngineManager mgr = new ScriptEngineManager();
 		ScriptEngine engine = mgr.getEngineByName("JavaScript");
@@ -169,13 +166,7 @@ public class NLCalc {
 			System.out.println("Script failed");
 		}
 		*/
-		
 
-
-		/* THINGS TO DO:
-			- Finish implementing evaluation of operands - proper lexing
-
-			- Implement more functions, like differentiation or integration */
 
 	}
 

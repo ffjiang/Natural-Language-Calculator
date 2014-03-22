@@ -1,0 +1,41 @@
+Project Name: Natural Language Calculator
+
+Author: Frank Jiang
+
+Project Description: 
+		NLCalc takes a simple mathematical expression in a mixture of word or symbol form
+					and evaluates it. 
+
+Usage Example: 
+		$ java NLCalc
+		Enter a simple mathematical expression:
+		0zero0onepointzerotwo 5minus3tothepowerofsqrt6*-5/1%nine+twohundredandthirtytwomillionfourhundred andfiFtEeN ThOuSanDninehundredandeightyeight
+
+		Expression interpreted as: 1.025 - 3.0 ^ 2.449489742783178 * (-5.0) / 1.0 % 9.0 + 2.32415988E8 
+		----------------
+		Result: 2.3241599075998968E8
+		----------------
+
+
+How it works:		
+	Firstly, the expression is lexed by NLInterpreter.analyse() into either operand or 
+	operator tokens based on dictionaries of accepted operand/operator strings, as well as
+	any numerical input.
+
+	Tokens are classified as either operands, (left) unary operators or binary operators. 
+	Right unary operators such as factorial are not supported.
+
+	Operands are evaluated by NLInterpreter.evaluateOperand(), which takes a contiguous group
+	of operands and evaluates it as a single operand. To this end, it employs NLDigitDFA,
+	a simple deterministic finite state automaton which evaluates the group of operands
+	from left to right, with the type of each operand determinig how the next operand is 
+	evaluated.
+
+	Unary operators are then applied by parsing through the expression from right to left
+	(hence why right unary operators are not supported). Unary operators thus have highest
+	precedence and are treated as if they were inside brackets (which is normally what you mean
+	when you say something like "three plus minus five");
+
+	With only binary operators and single operands remaining, the expression is then converted from
+	infix to postfix notation using Djikstra's Shunting Yard algorithm (NLCompute.postfix()). 
+	NLCompute.evalPostfix() then evaluates this postfix expression and returns the answer.

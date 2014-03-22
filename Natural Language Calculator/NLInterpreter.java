@@ -9,12 +9,12 @@ import java.util.Collections;
 public class NLInterpreter {
 
 	HashMap<String, Character> operators;
+	// HashMap<String, String> secondaryOperators;
 	HashMap<String, Integer> operands;
-	HashMap<String, String> secondaryOperators;
 
 	public NLInterpreter() {
 		operators = new HashMap<String, Character>();
-		secondaryOperators = new HashMap<String, String>();
+		// secondaryOperators = new HashMap<String, String>();
 		operands = new HashMap<String, Integer>();
 
 		operators.put("plus", 			'+');
@@ -32,11 +32,15 @@ public class NLInterpreter {
 		operators.put("modulus", 		'%');
 		operators.put("mod",			'%');
 		operators.put("to the power of",'^');
+		operators.put("tothepowerof",   '^');
 		operators.put("sqrt",			'√');
 		operators.put("square root",	'√');
+		operators.put("squareroot",		'√');
 
+		/*
 		secondaryOperators.put("squared", "to the power of two");
 		secondaryOperators.put("cubed", "to the power of three");
+		*/
 
 		operands.put("zero",		0);
 		operands.put("one", 		1);
@@ -137,6 +141,8 @@ public class NLInterpreter {
 		}
 
 		// Check for secondary operators (word form)
+		/*  If I had more time I would implement this so that more complex string operators could be replaced with
+			simpler strings before processing. */
 /*
 		for (String key: secondaryOperators.keySet()) {
 			for (Token tok : tokens) {
@@ -164,21 +170,15 @@ public class NLInterpreter {
 				String str = tok.getToken();
 				String[] numbers = str.split("[^0-9]", 0); // Extract numbers
 
-				int count = 0; // Count of nonempty strings in numbers[]
+				// Remove the old untokenized Token and replace with new Tokens containing tokenized values
+				tokens.remove(i);
 				for (String s : numbers) {
 					if (s.length() > 0) {
-						tokens.set(i, new Token(s, true)); // Replace old, unprocessed Token with a tokenized Token
-						count++;
+						tokens.add(i, new Token(s, true)); // Replace old, unprocessed Token with a tokenized Token
+						i++;	// Skip this token next time round
 					}
 				}
-				if (count == 0) {		// If there are no digits in 'str', remove the corresponding Token entirely.
-					System.out.println("Non-numeric characters and empty strings removed from operand");
-					tokens.remove(i);
-					i--;
-				}
-				if (count > 1) {
-					throw new RuntimeException("Numerical input must be contiguous.");
-				}
+				i--; // To account for the removed token
 			}
 		}
 
@@ -261,7 +261,7 @@ public class NLInterpreter {
 		// the keys in the operands hashmap will be treated as words.
 
 		// Use simple DFA to determine how operand tokens are concatenated
-		DigitDFA dfa = new DigitDFA(values);
+		NLDigitDFA dfa = new NLDigitDFA(values);
 		return dfa.evaluate();
 	}
 }

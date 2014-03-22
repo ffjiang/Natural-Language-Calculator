@@ -51,10 +51,11 @@ public class NLCompute {
 			outputQueue.add(operatorStack.pop());
 		}
 
-		System.out.println("Postfix Notation - Output Queue:");
+		// Print out the resulting outputQueue
+	/*	System.out.println("Postfix Notation - Output Queue:");
 		for (String s : outputQueue) {
 			System.out.println(s);
-		}
+		} */
 
 		return outputQueue;
 	}
@@ -98,7 +99,7 @@ public class NLCompute {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Evaluation of postfix expressio failed");
+			System.out.println("Evaluation of postfix expression failed");
 		}
 
 		if (operandStack.size() > 1) {
