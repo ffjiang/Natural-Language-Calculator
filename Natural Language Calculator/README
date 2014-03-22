@@ -39,3 +39,11 @@ How it works:
 	With only binary operators and single operands remaining, the expression is then converted from
 	infix to postfix notation using Djikstra's Shunting Yard algorithm (NLCompute.postfix()). 
 	NLCompute.evalPostfix() then evaluates this postfix expression and returns the answer.
+
+	Time Spent on Project: ~20 hours in total:
+								~ 4 hours planning and thinking about problem and things that I was stuck on,
+								away from the computer
+								~ 8 hours coding
+								~ 6 hours debugging (ongoing process that was interspersed with coding)
+								~ 2 hours refactoring the code and getting
+									rid of 'instanceof' usage and making the program more object-oriented
