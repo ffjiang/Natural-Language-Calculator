@@ -1,0 +1,106 @@
+Plan for T9 Predictive Text Algorithm
+
+Naive Solution:
+
+	The easiest way to implement the basic functionality of simply returning all possible words that a certain sequence of numbers could represent would be to go through every possible combination of letters and check if each one is contained in a Set data structure. This would be rather slow ecause of the number of possibilities increases exponentially with the length of the number sequence.
+
+Improving the Naive Solution:
+	
+	The naive solution could be improved by having a dictionary (say, hashmap) with prefixes (in numberical form) as keys and booleans representing whether any word begins with a certain prefix as values. The more (and the longer) the prefixes, the less the work that has to be done when determining possible words - all combinations that start with certain prefixes can be ruled out. However, these dictionaries would have to be populated before the program starts and recorded in some sort of data file.
+
+Indexing:
+	
+	This naturally leads to the idea of indexing. Instead of mapping a boolean to each prefix, a list of all words representable by a certain number can be mapped to that number. This can be done for every possible combination of numbers (and up to whatever length desired), such that when the user types in a numbe, the program simply retrieves the list associated with that number/key. Again, a file containing every possibility would have to be compiled before the start of the program, as it would take a long time to index everything. But having done this, searches would be extremely and almost in constant time, assuming a good dictionary implementation (good hash method, low number of collisions etc)
+
+Prefixing:
+	
+	To achieve prefixing, the indexes can simply be altered such that all words beginning with a prefix are mapped to that prefix. This is a natural extension of prefixing.
+
+
+Pseudocode for the program:
+
+Indexing Class:
+	The indexer has to go through every combination of numbers up to a certain MAX_LENGTH, which is achieved through recursion.
+	Then for each number sequence, all possible words have to be determined and written to to a dictionary file. This is again
+	done through recursion.
+{
+	for (length = 1; length < MAX_LENGTH; length++) {
+		recurse("", 2, length);
+		recurse("", 3, length);
+		recurse("", 4, length);
+		recurse("", 5, length);
+		recurse("", 6, length);
+		recurse("", 7, length);
+		recurse("", 8, length);
+		recurse("", 9, length);
+	}
+
+	void recurse(String currentNumber, numberToAdd, depth of recursion) {
+		if (length == 0) {
+			dictionaryFile.write(currentNumber, allPossibleWords(currentNumber));
+			return;
+		}
+
+		recurse(2,length - 1);
+		recurse(3,length - 1);
+		recurse(4,length - 1);
+		recurse(5,length - 1);
+		recurse(6,length - 1);
+		recurse(7,length - 1);
+		recurse(8,length - 1);
+		recurse(9,length - 1);
+	}
+
+	List<Strings> allPossibleWords(String numberSequence) {
+
+		possibleWords = new List<Strings>
+		recurseAllPossibleWords("", )
+
+		return possibleWords;
+	}
+
+	void recurseAllPossibleWords(String currentString, String numberSequence, int index) {
+		if (index >= numberSequence.length()) {
+			if (isWord(currentString)) {
+				possibleWords.add(currentString);
+			}
+		}
+
+		if (numberSequence.charAt(index) == '2') {
+			recurseAllPossibleWords(currentString + "a", numberSequence, index + 1);
+			recurseAllPossibleWords(currentString + "b", numberSequence, index + 1);
+			recurseAllPossibleWords(currentString + "c", numberSequence, index + 1);
+		} else if (numberSequence.charAt(index) == '3') {
+			...
+		}
+		.
+		.
+		.
+		} else if (numberSequence.charAt(index) == '9') {
+			recurseAllPossibleWords(currentString + "w", numberSequence, index + 1);
+			recurseAllPossibleWords(currentString + "x", numberSequence, index + 1);
+			recurseAllPossibleWords(currentString + "y", numberSequence, index + 1);
+			recurseAllPossibleWords(currentString + "z", numberSequence, index + 1);
+		}
+	}
+
+	boolean isWord(String str) {
+		return dictionarySet.contains(str);
+	}
+}
+
+Client Class:
+	Simply accesses the index that is saved in a file and checks if the user input has a List mapped to it.
+	If so, it prints the list.
+{
+	Load index file into a dictionary data structure
+
+	Ask for user input
+
+	Read in user input
+
+	if (input is a valid numerical sequence that could represent a word) {
+		int hashCode = hash(input);
+		print dictionary[hashCode];
+	}
+}
