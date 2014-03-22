@@ -15,7 +15,6 @@ public class NLDigitDFA {
 
 	public NLDigitDFA(LinkedList<Double> values) {
 		this.values = values;
-		System.out.println(values);
 
 		units = new HashSet<Double>();
 		teens = new HashSet<Double>();
@@ -99,7 +98,6 @@ public class NLDigitDFA {
 		// Handle tokens after a decimal point
 		String decimals = ".";
 		for (i++; i < length; i++) {
-			System.out.println("HI:" + (int)((double)values.get(i)));
 			decimals += (int)((double)values.get(i)); // Unbox to double and then cast to int so 
 													  // that no extra decimal points are added to the string
 		}

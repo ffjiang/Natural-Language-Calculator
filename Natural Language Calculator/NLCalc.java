@@ -24,9 +24,9 @@ public class NLCalc {
 	//	System.out.println("Number of tokens:" + tokens.size());
 
 		// Print out each token
-		for (Token t : tokens) {
+	/*	for (Token t : tokens) {
 			System.out.println("Token: " + t.getToken());
-		}
+		} */
 
 		// Determine if each token is an operand or an operator
 		for (Token t : tokens) {
@@ -86,13 +86,13 @@ public class NLCalc {
 
 
 		// Display the operands and operators to ensure they are correct
-		for (Token tok : tokens) {
+	/*	for (Token tok : tokens) {
 			if (tok.isOperand()) {
 				System.out.println("Operand: " + tok.getValue());
 			} else {
 				System.out.println("Operator: " + tok.getToken());
 			}
-		}
+		} */
 
 		// Account for the effect of unary operators on operands. Does this by parsing expression from right to left
 		Token operand = null;

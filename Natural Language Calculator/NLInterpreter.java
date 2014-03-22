@@ -247,7 +247,10 @@ public class NLInterpreter {
 							break;
 						}
 					}
-					values.add(Double.parseDouble(s));
+					double value = Double.parseDouble(s);
+					if (value != 0.0) {		// If the value is 0, then it will aleady have been accounted for above
+						values.add(Double.parseDouble(s));
+					}
 				} catch (NumberFormatException e) {
 					System.out.println("invalid operand token");
 					System.exit(1);
